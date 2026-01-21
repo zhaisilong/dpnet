@@ -63,4 +63,4 @@ Each sample is returned as a dictionary containing SMILES and labels.
 
 Examples
 
-See `notebooks/example.ipynb` for an end-to-end usage example.
+See `./example.ipynb` for an end-to-end usage example.
