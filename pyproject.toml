@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dpnet"
+version = "0.0.1"
+description = "DPNet"
+readme = "README.md"
+authors = [{ name = "Silong Zhai", email = "zhaisilong@outlook.com" }]
+license = { text = "MIT" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.5.0",
+    "ipykernel",
+    "click",
+    "loguru",
+    "pytorch-lightning>=2.5.0",
+    "hydra-core",
+    "transformers",
+    "datasets",
+    "einops",
+    "huggingface-hub",
+    "scipy",
+    "lightning",
+    "litdata",
+    "p_tqdm",
+    "rich",
+    "rdkit",
+    "pyrootutils",
+    "scikit-learn",
+    "molvs",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pylint",
+    "python-dotenv",
+    "commitizen",
+]
+
+[project.urls]
+Homepage = "https://github.com/zhaisilong/astra"
+
+[project.scripts]
+dpnet = "dpnet.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["dpnet"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "pep440"
+version_provider = "pep621"
+update_changelog_on_bump = true
+major_version_zero = true
