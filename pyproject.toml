@@ -43,6 +43,7 @@ dev = [
     "python-dotenv",
     "commitizen",
 ]
+ml = ["scikit-learn"]
 
 [project.urls]
 Homepage = "https://github.com/zhaisilong/astra"
@@ -52,7 +53,7 @@ dpnet = "dpnet.main:cli"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["dpnet"]
+include = ["dpnet", "ml"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"

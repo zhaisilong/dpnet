@@ -23,7 +23,14 @@ def cli():
 @click.argument("meta_name", type=str, default="task_meta")
 @click.option("--skip_check", is_flag=True, default=False)
 @click.option("--root_dir", type=str)
-def process(task: str, meta_name: str, skip_check: bool, root_dir: str):
+@click.option("--extra_deduplicate_cols", type=str, default=None)
+def process(
+    task: str,
+    meta_name: str,
+    skip_check: bool,
+    root_dir: str,
+    extra_deduplicate_cols: str,
+):
     if root_dir:
         task_root = Path(root_dir)
     else:
@@ -34,7 +41,10 @@ def process(task: str, meta_name: str, skip_check: bool, root_dir: str):
     df = pd.read_csv(task_root / "raw" / f"{task}.csv")
     df = canonicalize_df(df, task_meta.smiles_col)
 
-    df, duplicates = deduplicate_df(df, [task_meta.smiles_col])
+    deduplicate_cols = [task_meta.smiles_col]
+    if isinstance(extra_deduplicate_cols, str):
+        deduplicate_cols.extend(extra_deduplicate_cols.split(","))
+    df, duplicates = deduplicate_df(df, deduplicate_cols)
     duplicates.to_csv(task_root / "duplicates.csv", index=False)
 
     if not task_meta.id_col:
@@ -81,8 +91,10 @@ def process(task: str, meta_name: str, skip_check: bool, root_dir: str):
 
     logger.info(f"Selected {n_labels} labels")
 
-    if task_meta.extra_cols:
+    if isinstance(task_meta.extra_cols, list):
         select_cols.extend(task_meta.extra_cols)
+    elif isinstance(task_meta.extra_cols, str):
+        select_cols.append(task_meta.extra_cols)
 
     for split_name, df in df_dict.items():
         df = df[select_cols]

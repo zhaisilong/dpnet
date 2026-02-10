@@ -24,6 +24,9 @@ pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 \
 git clone https://github.com/zhaisilong/dpnet
 cd dpnet
 pip install -e ".[dev]"
+
+# if you want to run ml baselines
+pip install -e ".[ml]"
 ```
 
 ## Data Layout
@@ -53,7 +56,7 @@ This performs SMILES standardization, deduplication, scaffold generation, strict
 ### Python API Example
 
 ```bash
-from dpnet.core import DPNet
+from dpnet import DPNet
 
 dpnet = DPNet("database/bbbp/processed/bbbp")
 train_data = dpnet.datasets["train"]

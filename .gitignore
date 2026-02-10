@@ -102,3 +102,4 @@ _build/
 projects/
 
 .unison
+tmp*
