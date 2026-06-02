@@ -101,3 +101,18 @@ def process(
         df.to_csv(processed_dir / f"{split_name}.csv", index=False)
 
     task_meta.save(processed_dir / f"{task_meta.name}.json")
+
+
+@cli.command()
+@click.argument("task", type=str, default="bbbp")
+@click.argument("model", type=str, default="rf")
+@click.argument("config", type=str, default="config.yaml")
+def run(task: str, model: str, config: str):
+    # load dataset
+    
+    # train model
+    
+    # test model
+    
+    # save results
+    pass

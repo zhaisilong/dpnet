@@ -46,14 +46,14 @@ dev = [
 ml = ["scikit-learn"]
 
 [project.urls]
-Homepage = "https://github.com/zhaisilong/astra"
+Homepage = "https://github.com/zhaisilong/dpnet"
 
 [project.scripts]
 dpnet = "dpnet.main:cli"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["dpnet", "ml"]
+include = ["dpnet"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"

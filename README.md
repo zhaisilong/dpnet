@@ -67,3 +67,14 @@ Each sample is returned as a dictionary containing SMILES and labels.
 Examples
 
 See `./example.ipynb` for an end-to-end usage example.
+
+### Run ML Baselines
+
+```bash
+from dpnet import DPNet
+
+dpnet = DPNet("database/bbbp/processed/bbbp")
+train_data = dpnet.datasets["train"]
+
+
+```
