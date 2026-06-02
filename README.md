@@ -71,10 +71,20 @@ See `./example.ipynb` for an end-to-end usage example.
 ### Run ML Baselines
 
 ```bash
-from dpnet import DPNet
-
-dpnet = DPNet("database/bbbp/processed/bbbp")
-train_data = dpnet.datasets["train"]
-
-
+dpnet run bbbp --model rf
+dpnet run esol --model rf --n-estimators 200 --n-jobs 8
 ```
+
+By default this trains a Random Forest baseline on RDKit Morgan fingerprints from
+the processed DPNet split files and writes artifacts under:
+
+```bash
+runs/<task>/rf/
+|-- config.json
+|-- metrics.json
+|-- models/<label_id>.joblib
+`-- predictions/{train,valid,test}.csv
+```
+
+Use `--task-dir` to point directly at a processed task directory containing
+`train.csv`, `valid.csv`, `test.csv`, and `<task>.json`.

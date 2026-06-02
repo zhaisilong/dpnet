@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dpnet"
-version = "0.0.1"
+version = "0.1.0"
 description = "DPNet"
 readme = "README.md"
 authors = [{ name = "Silong Zhai", email = "zhaisilong@outlook.com" }]
@@ -15,10 +15,13 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "numpy",
+    "pandas",
     "torch>=2.5.0",
     "ipykernel",
     "click",
     "loguru",
+    "tqdm",
     "pytorch-lightning>=2.5.0",
     "hydra-core",
     "transformers",
@@ -33,6 +36,7 @@ dependencies = [
     "rdkit",
     "pyrootutils",
     "scikit-learn",
+    "joblib",
     "molvs",
 ]
 
@@ -53,7 +57,10 @@ dpnet = "dpnet.main:cli"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["dpnet"]
+include = ["dpnet*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"

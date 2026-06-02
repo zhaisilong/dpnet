@@ -1,16 +1,7 @@
 import click
-import pandas as pd
 from loguru import logger
 from pathlib import Path
-from .utils import find_task_root
-from .preprocess import (
-    canonicalize_df,
-    deduplicate_df,
-    generate_scaffold_df,
-    scaffold_split_df,
-    report_df,
-)
-from .parser import TaskMeta
+from .runner import BaselineRunConfig, run_baseline
 
 
 @click.group()
@@ -22,7 +13,7 @@ def cli():
 @click.argument("task", type=str, default="bbbp")
 @click.argument("meta_name", type=str, default="task_meta")
 @click.option("--skip_check", is_flag=True, default=False)
-@click.option("--root_dir", type=str)
+@click.option("--root-dir", "--root_dir", type=str)
 @click.option("--extra_deduplicate_cols", type=str, default=None)
 def process(
     task: str,
@@ -31,6 +22,18 @@ def process(
     root_dir: str,
     extra_deduplicate_cols: str,
 ):
+    import pandas as pd
+
+    from .parser import TaskMeta
+    from .preprocess import (
+        canonicalize_df,
+        deduplicate_df,
+        generate_scaffold_df,
+        report_df,
+        scaffold_split_df,
+    )
+    from .utils import find_task_root
+
     if root_dir:
         task_root = Path(root_dir)
     else:
@@ -105,14 +108,43 @@ def process(
 
 @cli.command()
 @click.argument("task", type=str, default="bbbp")
-@click.argument("model", type=str, default="rf")
-@click.argument("config", type=str, default="config.yaml")
-def run(task: str, model: str, config: str):
-    # load dataset
-    
-    # train model
-    
-    # test model
-    
-    # save results
-    pass
+@click.option("--model", type=click.Choice(["rf"]), default="rf", show_default=True)
+@click.option("--root-dir", type=click.Path(path_type=Path), default=None)
+@click.option("--task-dir", type=click.Path(path_type=Path), default=None)
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path),
+    default=Path("runs"),
+    show_default=True,
+)
+@click.option("--seed", type=int, default=None)
+@click.option("--n-estimators", type=int, default=500, show_default=True)
+@click.option("--n-jobs", type=int, default=4, show_default=True)
+def run(
+    task: str,
+    model: str,
+    root_dir: Path | None,
+    task_dir: Path | None,
+    output_dir: Path,
+    seed: int | None,
+    n_estimators: int,
+    n_jobs: int,
+):
+    result = run_baseline(
+        BaselineRunConfig(
+            task=task,
+            model=model,
+            root_dir=root_dir,
+            task_dir=task_dir,
+            output_dir=output_dir,
+            seed=seed,
+            n_estimators=n_estimators,
+            n_jobs=n_jobs,
+        )
+    )
+    click.echo(f"Run saved to {result.run_dir}")
+    click.echo(f"Metrics: {result.metrics_path}")
+
+
+if __name__ == "__main__":
+    cli()
