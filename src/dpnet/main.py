@@ -15,12 +15,18 @@ def cli():
 @click.option("--skip_check", is_flag=True, default=False)
 @click.option("--root-dir", "--root_dir", type=str)
 @click.option("--extra_deduplicate_cols", type=str, default=None)
+@click.option(
+    "--split-method",
+    type=click.Choice(["scaffold", "random", "perimeter"]),
+    default=None,
+)
 def process(
     task: str,
     meta_name: str,
     skip_check: bool,
     root_dir: str,
     extra_deduplicate_cols: str,
+    split_method: str | None,
 ):
     import pandas as pd
 
@@ -29,6 +35,9 @@ def process(
         canonicalize_df,
         deduplicate_df,
         generate_scaffold_df,
+        PERIMETER_MAX_SAMPLES,
+        perimeter_split_df,
+        random_split_df,
         report_df,
         scaffold_split_df,
     )
@@ -66,11 +75,64 @@ def process(
                         f"Label {label.id} has {df[label.label_col].nunique()} values, but the meta specifies that it should have {label.num_classes}"
                     )
 
+    stratify_col = None
+    for label in task_meta.iter_labels():
+        if label.problem_type != "regression":
+            stratify_col = label.label_col
+            break
+
+    if stratify_col:
+        logger.info(f"Using stratify column for split: {stratify_col}")
+    else:
+        logger.info("No classification label found; split stratification disabled")
+
     df = generate_scaffold_df(df, smiles_col=task_meta.smiles_col)
+    selected_split_method = split_method or task_meta.split_method or "scaffold"
+    split_config = task_meta.split_config or {}
+    logger.info(f"split method: {selected_split_method}")
     logger.info(f"strict test: {task_meta.strict_test}")
-    df_dict = scaffold_split_df(
-        df, strict=task_meta.strict_test, random_state=task_meta.seed
-    )
+
+    if selected_split_method == "scaffold":
+        df_dict = scaffold_split_df(
+            df,
+            strict=task_meta.strict_test,
+            random_state=task_meta.seed,
+            stratify_col=stratify_col,
+        )
+    elif selected_split_method == "random":
+        df_dict = random_split_df(
+            df,
+            random_state=task_meta.seed,
+            stratify_col=stratify_col,
+        )
+    elif selected_split_method == "perimeter":
+        perimeter_max_samples = int(
+            split_config.get("perimeter_max_samples", PERIMETER_MAX_SAMPLES)
+        )
+        if len(df) > perimeter_max_samples:
+            logger.warning(
+                f"Perimeter split requested for {len(df)} samples, exceeding "
+                f"the limit of {perimeter_max_samples}; falling back to scaffold split"
+            )
+            selected_split_method = "scaffold"
+            df_dict = scaffold_split_df(
+                df,
+                strict=task_meta.strict_test,
+                random_state=task_meta.seed,
+                stratify_col=stratify_col,
+            )
+        else:
+            df_dict = perimeter_split_df(
+                df,
+                smiles_col=task_meta.smiles_col,
+                random_state=task_meta.seed,
+                stratify_col=stratify_col,
+                max_samples=perimeter_max_samples,
+            )
+    else:
+        raise ValueError(f"Unknown split method: {selected_split_method}")
+
+    task_meta.split_method = selected_split_method
 
     for split_name, df in df_dict.items():
         report = report_df(df, smiles_col=task_meta.smiles_col, scaffold_col="scaffold")

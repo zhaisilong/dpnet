@@ -56,6 +56,8 @@ class TaskMeta:
     dialect: Optional[str] = None
     version: Optional[int] = None
     extra_cols: Optional[List[str]] = None
+    split_method: Literal["scaffold", "random", "perimeter"] = "scaffold"
+    split_config: dict = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, data: dict):
@@ -80,6 +82,8 @@ class TaskMeta:
             labels=labels,
             seed=data.get("seed"),
             extra_cols=data.get("extra_cols"),
+            split_method=data.get("split_method", "scaffold"),
+            split_config=data.get("split_config") or {},
         )
 
     def to_dict(self):
@@ -94,6 +98,8 @@ class TaskMeta:
             "labels": [label.to_dict() for label in self.labels],
             "seed": self.seed,
             "extra_cols": self.extra_cols or [],
+            "split_method": self.split_method,
+            "split_config": self.split_config or {},
         }
 
     def __str__(self):
